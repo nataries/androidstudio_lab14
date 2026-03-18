@@ -57,8 +57,12 @@ fun GameScreen(
         )
         GameLayout(
             currentScrambleWord = gameUIState.currentScrambleWord,
-            onUserGuessChanged = { },
-            onKeyboardDone = { }
+            userGuess = gameViewModel.userGuess,
+            onUserGuessChanged = { gameViewModel.updateUserGuess(it)},
+            onKeyboardDone = { gameViewModel.checkUserGuess() },
+            isGuessWrong = gameUIState.isGuessedWordWrong,
+            onSubmitClicked = { gameViewModel.checkUserGuess() },
+            onSkipClicked = { gameViewModel.skipWord() }
         )
     }
 }
@@ -91,8 +95,12 @@ fun GameStatus(wordCount: Int,
 
 @Composable
 fun GameLayout(currentScrambleWord: String,
+               userGuess: String,
                onUserGuessChanged: (String) -> Unit,
                onKeyboardDone: () -> Unit,
+               isGuessWrong: Boolean,
+               onSubmitClicked: () -> Unit,
+               onSkipClicked: () -> Unit,
                modifier: Modifier = Modifier) {
     var userGuess by remember { mutableStateOf("") }
     Column(modifier = modifier.fillMaxWidth(),
@@ -124,6 +132,7 @@ fun GameLayout(currentScrambleWord: String,
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Введите слово") },
+            isError = isGuessWrong,
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Done
             ),
@@ -131,8 +140,15 @@ fun GameLayout(currentScrambleWord: String,
                 onDone = { onKeyboardDone() }
             )
         )
+        if (isGuessWrong) {
+            Text(
+                text = "Неправильно! Попробуйте ещё раз",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
         Button(
-            onClick = { },
+            onClick = onSubmitClicked,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Проверить",
@@ -140,7 +156,7 @@ fun GameLayout(currentScrambleWord: String,
             )
         }
         OutlinedButton(
-            onClick = { },
+            onClick = onSkipClicked,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Пропустить",
