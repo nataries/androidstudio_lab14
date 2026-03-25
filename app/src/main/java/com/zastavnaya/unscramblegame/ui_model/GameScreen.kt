@@ -1,11 +1,9 @@
 package com.zastavnaya.unscramblegame.ui_model
 
-import android.inputmethodservice.Keyboard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,12 +12,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -64,6 +65,12 @@ fun GameScreen(
             onSubmitClicked = { gameViewModel.checkUserGuess() },
             onSkipClicked = { gameViewModel.skipWord() }
         )
+        if (gameUIState.isGameOver) {
+            FinalScoreDialog(
+                score = gameUIState.score,
+                onPlayAgain = { gameViewModel.resetGame() }
+            )
+        }
     }
 }
 
@@ -163,4 +170,31 @@ fun GameLayout(currentScrambleWord: String,
                 fontSize = 16.sp)
         }
     }
+}
+
+@Composable
+fun FinalScoreDialog(score: Int, onPlayAgain: () -> Unit, modifier: Modifier = Modifier) {
+    AlertDialog(
+        onDismissRequest = {
+
+        },
+        title = { Text(text="Поздравляем!") },
+        text = {
+            Column {
+                Text(text="Вы набрали:")
+                Text(
+                    text="$score очков",
+                    style = MaterialTheme.typography.displaySmall,
+                    fontSize = 36.sp
+                )
+            }
+        },
+        modifier = modifier,
+        dismissButton = {},
+        confirmButton = {
+            TextButton(onClick = onPlayAgain) {
+                Text(text="Играть снова")
+            }
+        }
+    )
 }
